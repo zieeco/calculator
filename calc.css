@@ -66,3 +66,30 @@ body {
   grid-row-start: 5;
   grid-row-end: 7;
 }
+
+@media screen and (max-width: 768px) {
+  .calc-container {
+    grid-template-columns: repeat(4, 50px);
+    grid-template-rows: minmax(100px, auto) repeat(5, 40px);
+    background-color: rgba(0, 0, 0, 0.69);
+    gap: 8px;
+    width: 15.75rem;
+  }
+
+  .output {
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .output .prev-output {
+    font-size: 1.5rem;
+  }
+
+  .output .cur-output {
+    font-size: 1.875rem;
+  }
+
+  .calc-container > button {
+    font-size: 1rem;
+  }
+}
