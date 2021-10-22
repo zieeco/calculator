@@ -43,11 +43,13 @@ body {
 .output .prev-output {
   font-size: 1.5rem;
   color: white;
+  font-weight: bold;
 }
 
 .output .cur-output {
-  font-size: 2.5rem;
+  font-size: 1.95rem;
   color: whitesmoke;
+  font-weight: bold;
 }
 
 .calc-container > button {
@@ -82,11 +84,11 @@ body {
   }
 
   .output .prev-output {
-    font-size: 1.5rem;
+    font-size: 1.125rem;
   }
 
   .output .cur-output {
-    font-size: 1.875rem;
+    font-size: 1.375rem;
   }
 
   .calc-container > button {
