@@ -1,42 +1,93 @@
 const numberButtons = document.querySelectorAll('[data-number]');
-const operationButtons = document.querySelectorAll('[data-operation]');
+const mathOperatorButtons = document.querySelectorAll('[data-operation]');
 const allClearButton = document.querySelector('[data-all-clear]');
 const deleteButton = document.querySelector('[data-delete]');
 const equalsButton = document.querySelector('[data-equals]');
-const previousOperandOutput = document.querySelector('[data-prev-operand]');
-const currrentOperandOutput = document.querySelector('[data-cur-operand]');
-previousOperandOutput.innerText = '';
-currrentOperandOutput.innerText = '';
-let updatedPreviousOperandOutput = '';
-let updatedCurrentOperandOutput = '0';
-let operation;
+const prevOutput = document.querySelector('[data-prev-operand]');
+const curOutput = document.querySelector('[data-cur-operand]');
+prevOutput.innerText = '';
+curOutput.innerText = '';
+let newPrevOutput = '';
+let newCurOutput = '0';
+let mathOperator = null;
 
 function updateDisplay() {
-  previousOperandOutput.innerText = updatedPreviousOperandOutput;
-  currrentOperandOutput.innerText = updatedCurrentOperandOutput;
+  prevOutput.innerText = newPrevOutput;
+  curOutput.innerText = newCurOutput;
 }
 updateDisplay();
 
-function appendNumber(number) {
-  if (updatedCurrentOperandOutput === '0' && number === '0') return;
-  if (updatedCurrentOperandOutput.includes('.') && number === '.') return;
-  if (updatedCurrentOperandOutput === '0' && (number >= '1' && number <= '9')) {
-    updatedCurrentOperandOutput = ''.toString() + number.toString();
+function calculate() {
+  let result;
+  newPrevOutput = parseFloat(newPrevOutput);
+  newCurOutput = parseFloat(newCurOutput);
+  // eslint-disable-next-line no-restricted-globals
+  if (isNaN(newPrevOutput) || isNaN(newCurOutput)) return;
+  if (mathOperator === '/') {
+    result = newPrevOutput / newCurOutput;
+  } else if (mathOperator === '*') {
+    result = newPrevOutput * newCurOutput;
+  } else if (mathOperator === '+') {
+    result = newPrevOutput + newCurOutput;
+  } else if (mathOperator === '-') {
+    result = newPrevOutput - newCurOutput;
   } else {
-    updatedCurrentOperandOutput = updatedCurrentOperandOutput.toString() + number.toString();
+    return;
+  }
+  newCurOutput = result;
+  mathOperator = undefined;
+  newPrevOutput = '';
+}
+
+function appendNumber(number) {
+  if (newCurOutput === '0' && number === '0') return;
+  if (newCurOutput.includes('.') && number === '.') return;
+  if (newCurOutput === '0' && (number >= '1' && number <= '9')) {
+    newCurOutput = ''.toString() + number.toString();
+  } else if (newCurOutput === '' && number === '.') {
+    newCurOutput = '0'.toString() + number.toString();
+  } else {
+    newCurOutput = newCurOutput.toString() + number.toString();
   }
 }
 
-function calculator() {
-
+function chooseOperator(operator) {
+  if (newCurOutput === '0' && mathOperator === operator) {
+    newPrevOutput = `${newCurOutput} ${operator} `;
+  }
+  if ((newPrevOutput !== '' && mathOperator === null) && (newCurOutput === '' || newCurOutput !== '')) {
+    newPrevOutput += `${mathOperator} `;
+    calculate();
+  }
+  if (newCurOutput === '') return;
+  if (newPrevOutput !== '') calculate();
+  mathOperator = operator;
+  newPrevOutput = `${newCurOutput} ${operator} `;
+  newCurOutput = '0';
 }
 
-function chooseOperation(operation) {
-  updatedPreviousOperandOutput = `${updatedCurrentOperandOutput} ${operation}`;
-  updatedCurrentOperandOutput = '0';
+function clearAll() {
+  while (prevOutput.innerText === '' && curOutput.innerText === '0') return;
+  prevOutput.innerText = '';
+  curOutput.innerText = '0';
+  newPrevOutput = '';
+  newCurOutput = '0';
+  mathOperator = null;
 }
 
-// clearAllOutput();
+function deleteNum() {
+  if (curOutput.innerText !== '') {
+    newCurOutput = newCurOutput.toString().slice(0, -1);
+    mathOperator = null;
+    updateDisplay();
+  }
+  if (prevOutput.innerText !== '') {
+    newPrevOutput = newPrevOutput.toString().slice(0, -1);
+    mathOperator = null;
+    updateDisplay();
+  }
+}
+
 numberButtons.forEach((button) => {
   button.addEventListener('click', () => {
     appendNumber(button.innerText);
@@ -44,19 +95,17 @@ numberButtons.forEach((button) => {
   });
 });
 
-operationButtons.forEach((button) => {
+mathOperatorButtons.forEach((button) => {
   button.addEventListener('click', () => {
-    chooseOperation(button.innerText);
+    chooseOperator(button.innerText);
     updateDisplay();
   });
 });
 
-allClearButton.addEventListener('click', () => {
-  while (previousOperandOutput.innerText === '' && currrentOperandOutput.innerText === '0') return;
-  previousOperandOutput.innerText = '';
-  currrentOperandOutput.innerText = '0';
-  updatedPreviousOperandOutput = '';
-  updatedCurrentOperandOutput = '';
-  operation = undefined;
-  console.log('how many times on click');
+equalsButton.addEventListener('click', () => {
+  calculate();
+  updateDisplay();
 });
+
+allClearButton.addEventListener('click', clearAll);
+deleteButton.addEventListener('click', deleteNum);
