@@ -24,7 +24,11 @@ function calculate() {
   // eslint-disable-next-line no-restricted-globals
   if (isNaN(newPrevOutput) || isNaN(newCurOutput)) return;
   if (mathOperator === '/') {
-    result = newPrevOutput / newCurOutput;
+    if (newCurOutput === '0' || newCurOutput === 0) {
+      result = 'Math Err!';
+    } else {
+      result = newPrevOutput / newCurOutput;
+    }
   } else if (mathOperator === '*') {
     result = newPrevOutput * newCurOutput;
   } else if (mathOperator === '+') {
@@ -44,20 +48,21 @@ function appendNumber(number) {
   if (newCurOutput.includes('.') && number === '.') return;
   if (newCurOutput === '0' && (number >= '1' && number <= '9')) {
     newCurOutput = ''.toString() + number.toString();
-  } else if (newCurOutput === '' && number === '.') {
+  } else if ((newCurOutput === '' || newCurOutput === 'Math Err!') && number === '.') {
     newCurOutput = '0'.toString() + number.toString();
+  } else if (newCurOutput === 'Math Err!' && number !== '') {
+    newCurOutput = ''.toString() + number.toString();
+  } else if (newCurOutput !== '' && number) {
+    newCurOutput += ''.toString() + number.toString();
   } else {
     newCurOutput = newCurOutput.toString() + number.toString();
   }
 }
 
 function chooseOperator(operator) {
+  if (newCurOutput === 'Math Err!' && mathOperator !== '') return;
   if (newCurOutput === '0' && mathOperator === operator) {
     newPrevOutput = `${newCurOutput} ${operator} `;
-  }
-  if ((newPrevOutput !== '' && mathOperator === null) && (newCurOutput === '' || newCurOutput !== '')) {
-    newPrevOutput += `${mathOperator} `;
-    calculate();
   }
   if (newCurOutput === '') return;
   if (newPrevOutput !== '') calculate();
@@ -68,22 +73,22 @@ function chooseOperator(operator) {
 
 function clearAll() {
   while (prevOutput.innerText === '' && curOutput.innerText === '0') return;
-  prevOutput.innerText = '';
+  prevOutput.innerText = null;
   curOutput.innerText = '0';
-  newPrevOutput = '';
+  newPrevOutput = null;
   newCurOutput = '0';
   mathOperator = null;
+  window.location.reload();
 }
 
 function deleteNum() {
+  if (newCurOutput === 'Math Err!') return;
+  if (curOutput.innerText === '' && prevOutput.innerText === '') return;
   if (curOutput.innerText !== '') {
     newCurOutput = newCurOutput.toString().slice(0, -1);
-    mathOperator = null;
     updateDisplay();
-  }
-  if (prevOutput.innerText !== '') {
+  } else {
     newPrevOutput = newPrevOutput.toString().slice(0, -1);
-    mathOperator = null;
     updateDisplay();
   }
 }
@@ -103,6 +108,8 @@ mathOperatorButtons.forEach((button) => {
 });
 
 equalsButton.addEventListener('click', () => {
+  if (newCurOutput !== '' && newPrevOutput === '') return;
+  if (newCurOutput === 'Math Err!') return;
   calculate();
   updateDisplay();
 });
