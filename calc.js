@@ -9,7 +9,7 @@ prevOutput.innerText = '';
 curOutput.innerText = '';
 let newPrevOutput = '';
 let newCurOutput = '0';
-let mathOperator = null;
+let mathOperator = '';
 
 function updateDisplay() {
   prevOutput.innerText = newPrevOutput;
@@ -21,10 +21,9 @@ function calculate() {
   let result;
   newPrevOutput = parseFloat(newPrevOutput);
   newCurOutput = parseFloat(newCurOutput);
-  // eslint-disable-next-line no-restricted-globals
-  if (isNaN(newPrevOutput) || isNaN(newCurOutput)) return;
+  if (Number.isNaN(newPrevOutput) || Number.isNaN(newCurOutput)) return;
   if (mathOperator === '/') {
-    if (newCurOutput === '0' || newCurOutput === 0) {
+    if (newCurOutput === 0) {
       result = 'Math Err!';
     } else {
       result = newPrevOutput / newCurOutput;
@@ -46,7 +45,7 @@ function calculate() {
 function appendNumber(number) {
   if (newCurOutput === '0' && number === '0') return;
   if (newCurOutput.includes('.') && number === '.') return;
-  if (newCurOutput === '0' && (number >= '1' && number <= '9')) {
+  if (newCurOutput === '0' && number >= '1' && number <= '9') {
     newCurOutput = ''.toString() + number.toString();
   } else if ((newCurOutput === '' || newCurOutput === 'Math Err!') && number === '.') {
     newCurOutput = '0'.toString() + number.toString();
@@ -60,11 +59,15 @@ function appendNumber(number) {
 }
 
 function chooseOperator(operator) {
-  if (newCurOutput === 'Math Err!' && mathOperator !== '') return;
-  if (newCurOutput === '0' && mathOperator === operator) {
+  if ((newCurOutput === 'Math Err!' || newCurOutput === '') && operator) return;
+  if (newPrevOutput.includes('Math Err!')) {
+    newCurOutput = newPrevOutput.slice(0, -3);
+    newPrevOutput = '';
+    return;
+  }
+  if (newCurOutput === '0' && operator) {
     newPrevOutput = `${newCurOutput} ${operator} `;
   }
-  if (newCurOutput === '') return;
   if (newPrevOutput !== '') calculate();
   mathOperator = operator;
   newPrevOutput = `${newCurOutput} ${operator} `;
@@ -73,24 +76,24 @@ function chooseOperator(operator) {
 
 function clearAll() {
   while (prevOutput.innerText === '' && curOutput.innerText === '0') return;
-  prevOutput.innerText = null;
+  prevOutput.innerText = '';
   curOutput.innerText = '0';
-  newPrevOutput = null;
+  newPrevOutput = '';
   newCurOutput = '0';
-  mathOperator = null;
-  window.location.reload();
+  mathOperator = '';
 }
 
 function deleteNum() {
   if (newCurOutput === 'Math Err!') return;
-  if (curOutput.innerText === '' && prevOutput.innerText === '') return;
-  if (curOutput.innerText !== '') {
-    newCurOutput = newCurOutput.toString().slice(0, -1);
-    updateDisplay();
+  if ((newCurOutput === '0' && newPrevOutput === '') || (newPrevOutput === '' && newCurOutput === '')) return;
+  if (newPrevOutput !== '' && (newCurOutput === '' || newCurOutput === '0')) {
+    newPrevOutput = newPrevOutput.slice(0, -3);
+    newCurOutput = newPrevOutput;
+    newPrevOutput = '';
   } else {
-    newPrevOutput = newPrevOutput.toString().slice(0, -1);
-    updateDisplay();
+    newCurOutput = newCurOutput.toString().slice(0, -1);
   }
+  updateDisplay();
 }
 
 numberButtons.forEach((button) => {
@@ -108,8 +111,13 @@ mathOperatorButtons.forEach((button) => {
 });
 
 equalsButton.addEventListener('click', () => {
-  if (newCurOutput !== '' && newPrevOutput === '') return;
-  if (newCurOutput === 'Math Err!') return;
+  if (newPrevOutput.includes('Math Err!')) {
+    newCurOutput = newPrevOutput.slice(0, -3);
+    newPrevOutput = '';
+    updateDisplay();
+    return;
+  }
+  if ((newCurOutput === '' && newPrevOutput === '') || (newCurOutput !== '' && newPrevOutput === '')) return;
   calculate();
   updateDisplay();
 });

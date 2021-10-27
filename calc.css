@@ -63,6 +63,10 @@ body {
   background: white;
 }
 
+.calc-container > button:hover {
+  opacity: 0.4;
+}
+
 .span-two {
   grid-column: span 2;
 }
