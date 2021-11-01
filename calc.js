@@ -46,13 +46,13 @@ function appendNumber(number) {
   if (newCurOutput === '0' && number === '0') return;
   if (newCurOutput.includes('.') && number === '.') return;
   if (newCurOutput === '0' && number >= '1' && number <= '9') {
-    newCurOutput = ''.toString() + number.toString();
+    newCurOutput = number.toString();
   } else if ((newCurOutput === '' || newCurOutput === 'Math Err!') && number === '.') {
-    newCurOutput = '0'.toString() + number.toString();
+    newCurOutput = `0${number.toString()}`;
   } else if (newCurOutput === 'Math Err!' && number !== '') {
-    newCurOutput = ''.toString() + number.toString();
+    newCurOutput = number.toString();
   } else if (newCurOutput !== '' && number) {
-    newCurOutput += ''.toString() + number.toString();
+    newCurOutput += number.toString();
   } else {
     newCurOutput = newCurOutput.toString() + number.toString();
   }
@@ -96,6 +96,24 @@ function deleteNum() {
   updateDisplay();
 }
 
+function keyboardInput(e) {
+  if (e.key === '/' || e.key === '*' || e.key === '-' || e.key === '+') chooseOperator(e.key);
+  if ((e.key >= 0 && e.key <= 9) || e.key === '.') appendNumber(e.key);
+  if (e.key === 'Escape') clearAll();
+  if (e.key === 'Backspace') deleteNum();
+  if (e.key === 'Enter') {
+    if ((newCurOutput === '' && newPrevOutput === '') || (newCurOutput !== '' && newPrevOutput === '')) return;
+    if (newPrevOutput.includes('Math Err!')) {
+      newCurOutput = newPrevOutput.slice(0, -3);
+      newPrevOutput = '';
+      updateDisplay();
+      return;
+    }
+    calculate();
+  }
+  updateDisplay();
+}
+
 numberButtons.forEach((button) => {
   button.addEventListener('click', () => {
     appendNumber(button.innerText);
@@ -124,3 +142,4 @@ equalsButton.addEventListener('click', () => {
 
 allClearButton.addEventListener('click', clearAll);
 deleteButton.addEventListener('click', deleteNum);
+document.addEventListener('keydown', keyboardInput);
