@@ -28,7 +28,7 @@ function calculate() {
     } else {
       result = newPrevOutput / newCurOutput;
     }
-  } else if (mathOperator === '*') {
+  } else if (mathOperator === '*' || mathOperator === 'x') {
     result = newPrevOutput * newCurOutput;
   } else if (mathOperator === '+') {
     result = newPrevOutput + newCurOutput;
@@ -97,11 +97,12 @@ function deleteNum() {
 }
 
 function keyboardInput(e) {
-  if (e.key === '/' || e.key === '*' || e.key === '-' || e.key === '+') chooseOperator(e.key);
+  const operators = ['/', '*', 'x', '-', '+'];
+  if (operators.includes(e.key)) chooseOperator(e.key);
   if ((e.key >= 0 && e.key <= 9) || e.key === '.') appendNumber(e.key);
   if (e.key === 'Escape') clearAll();
   if (e.key === 'Backspace') deleteNum();
-  if (e.key === 'Enter') {
+  if (e.key === 'Enter' || e.key === '=') {
     if ((newCurOutput === '' && newPrevOutput === '') || (newCurOutput !== '' && newPrevOutput === '')) return;
     if (newPrevOutput.includes('Math Err!')) {
       newCurOutput = newPrevOutput.slice(0, -3);
